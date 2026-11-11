@@ -1,26 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% comment %}
-login.html — Pantalla de inicio de sesión
-
-Extiende base.html para heredar CSS, JS y la carga de fuentes.
-Como el usuario NO está autenticado, base.html omite el navbar automáticamente
-(gracias al {% if user.is_authenticated %} en base.html).
-
-La clase .login-page en el <div> principal activa el layout de dos paneles
-definido en portal.css: grid de [1fr 480px] en escritorio,
-solo el panel derecho en móvil.
-{% endcomment %}
-
 {% block title %}Iniciar sesión{% endblock %}
 
 {% block content %}
 <div class="login-page">
 
-  {# ============================================================
-     PANEL IZQUIERDO — decorativo, solo visible en escritorio
-  ============================================================= #}
+  <!-- Panel izquierdo: identidad visual (solo visible en escritorio) -->
   <div class="login-panel-left" aria-hidden="true">
     <div class="login-brand">
       <span class="login-brand-name">Portal Universidad</span>
@@ -38,38 +24,25 @@ solo el panel derecho en móvil.
     </div>
   </div>
 
-  {# ============================================================
-     PANEL DERECHO — formulario de login
-  ============================================================= #}
+  <!-- Panel derecho: formulario de autenticación -->
   <div class="login-panel-right">
-
-    {# Barra de acento roja — elemento decorativo sutil #}
     <div class="login-accent-bar" aria-hidden="true"></div>
 
     <h2 class="login-form-title">Bienvenido</h2>
     <p class="login-form-subtitle">Ingresa tus credenciales para continuar</p>
 
-    {#
-      El formulario usa POST (nunca GET para autenticación) y el token {% csrf_token %}
-      que Django verifica automáticamente para prevenir ataques CSRF.
-      En React equivaldría a incluir un header X-CSRF-Token en fetch().
-    #}
     <form method="post" action="{% url 'cuentas:login' %}" novalidate>
       {% csrf_token %}
 
-      {# Si hay una URL "next" (página a la que iba el usuario antes del login),
-         la guardamos como campo oculto para redirigir después del login. #}
       {% if next %}
-        <input type="hidden" name="next" value="{{ next }}" />
+        <input type="hidden" name="next" value="{{ next }}">
       {% endif %}
 
-      {# Campo: nombre de usuario #}
       <div class="form-group">
         <label for="{{ form.username.id_for_label }}" class="form-label">
           {{ form.username.label }}
         </label>
         {{ form.username }}
-        {# Muestra errores de validación del campo #}
         {% if form.username.errors %}
           {% for error in form.username.errors %}
             <span class="form-error">
@@ -80,7 +53,6 @@ solo el panel derecho en móvil.
         {% endif %}
       </div>
 
-      {# Campo: contraseña #}
       <div class="form-group">
         <label for="{{ form.password.id_for_label }}" class="form-label">
           {{ form.password.label }}
@@ -96,14 +68,11 @@ solo el panel derecho en móvil.
         {% endif %}
       </div>
 
-      {# Error general del formulario (credenciales incorrectas).
-         form.non_field_errors son errores que no pertenecen a un campo específico
-         sino al formulario en su conjunto — como "usuario o contraseña incorrectos". #}
       {% if form.non_field_errors %}
         <div class="login-error" role="alert">
           <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
           {% for error in form.non_field_errors %}
-            {{ error }}
+            <span>{{ error }}</span>
           {% endfor %}
         </div>
       {% endif %}
@@ -114,28 +83,16 @@ solo el panel derecho en móvil.
       </button>
     </form>
 
-    {# Pie del panel: información de contacto/soporte #}
-    <p style="
-      margin-top: var(--space-10);
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-      text-align: center;
-      border-top: 1px solid var(--color-border);
-      padding-top: var(--space-5);
-    ">
+    <p style="margin-top: var(--space-10); font-size: var(--text-xs); color: var(--color-text-muted); text-align: center; border-top: 1px solid var(--color-border); padding-top: var(--space-5);">
       ¿Problemas para acceder? Contacta a tu administrador del sistema.
     </p>
+  </div>
 
-  </div>{# /login-panel-right #}
-
-</div>{# /login-page #}
+</div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-  /* Estilos adicionales específicos de la pantalla de login */
-
-  /* Error general de credenciales */
   .login-error {
     display: flex;
     align-items: center;
@@ -149,7 +106,6 @@ solo el panel derecho en móvil.
     margin-top: var(--space-4);
   }
 
-  /* En móvil, el panel ocupa toda la pantalla centrado */
   @media (max-width: 1024px) {
     .login-panel-right {
       max-width: 440px;

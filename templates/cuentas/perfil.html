@@ -1,12 +1,5 @@
 {% extends "base.html" %}
 
-{% comment %}
-perfil.html — Página de perfil del usuario
-
-Muestra y permite editar los datos del usuario autenticado.
-Hereda el layout completo de base.html (con navbar).
-{% endcomment %}
-
 {% block title %}Mi perfil{% endblock %}
 
 {% block content %}
@@ -21,12 +14,9 @@ Hereda el layout completo de base.html (con navbar).
 
   <div style="display: grid; grid-template-columns: 280px 1fr; gap: var(--space-6); align-items: start;">
 
-    {# ---- Panel izquierdo: resumen del usuario ---- #}
     <div>
       <div class="card">
         <div class="card-body" style="text-align: center;">
-
-          {# Avatar con iniciales #}
           <div style="
             width: 72px; height: 72px;
             background-color: var(--color-dark);
@@ -48,7 +38,6 @@ Hereda el layout completo de base.html (con navbar).
             {{ perfil.puesto|default:"Sin puesto asignado" }}
           </p>
 
-          {# Badge de rol #}
           <span class="badge badge-info">
             {{ perfil.get_rol_display }}
           </span>
@@ -83,7 +72,6 @@ Hereda el layout completo de base.html (con navbar).
       </div>
     </div>
 
-    {# ---- Panel derecho: formulario de edición ---- #}
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Editar información</h3>
@@ -94,7 +82,6 @@ Hereda el layout completo de base.html (con navbar).
           {% csrf_token %}
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);">
-
             <div class="form-group">
               <label for="{{ formulario.nombre.id_for_label }}" class="form-label">
                 {{ formulario.nombre.label }}
@@ -108,7 +95,6 @@ Hereda el layout completo de base.html (con navbar).
               </label>
               {{ formulario.apellido }}
             </div>
-
           </div>
 
           <div class="form-group">
@@ -119,7 +105,6 @@ Hereda el layout completo de base.html (con navbar).
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);">
-
             <div class="form-group">
               <label for="{{ formulario.puesto.id_for_label }}" class="form-label">
                 {{ formulario.puesto.label }}
@@ -133,7 +118,6 @@ Hereda el layout completo de base.html (con navbar).
               </label>
               {{ formulario.telefono }}
             </div>
-
           </div>
 
           <div class="form-group">
@@ -143,7 +127,6 @@ Hereda el layout completo de base.html (con navbar).
             {{ formulario.fecha_ingreso }}
           </div>
 
-          {# Nota: área y rol solo los puede cambiar el Administrador desde el admin #}
           <p class="form-hint" style="margin-bottom: var(--space-5);">
             <i class="bi bi-info-circle" aria-hidden="true"></i>
             El área y el rol asignados son administrados por el departamento de TI.
@@ -164,14 +147,13 @@ Hereda el layout completo de base.html (con navbar).
       </div>
     </div>
 
-  </div>{# /grid #}
+  </div>
 
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-  /* En tablet, apilar los paneles en columna única */
   @media (max-width: 900px) {
     .main-content > div[style*="grid-template-columns"] {
       grid-template-columns: 1fr !important;

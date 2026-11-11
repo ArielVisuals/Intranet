@@ -1,82 +1,31 @@
-{% comment %}
-base.html — Layout maestro del Portal Universidad
-
-Este archivo es equivalente a un "Layout" o "_app.jsx" en React:
-contiene la estructura HTML que se repite en TODAS las páginas
-(navbar, scripts, CSS). Las páginas hijas extienden este layout
-con la etiqueta {% extends "base.html" %} y rellenan los bloques
-definidos aquí con {% block nombre %}...{% endblock %}.
-
-Bloques disponibles para las páginas hijas:
-  - {% block title %}      → título de la pestaña del navegador
-  - {% block extra_css %}  → CSS adicional específico de la página
-  - {% block content %}    → contenido principal
-  - {% block extra_js %}   → JavaScript adicional de la página
-{% endcomment %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  {# El título cambia por página; si no se define, usa el valor por defecto #}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Portal Universidad{% endblock %} · Portal Universidad</title>
+  <meta name="description" content="Portal corporativo interno — Portal Universidad">
 
-  {# Meta de descripción para accesibilidad y SEO básico #}
-  <meta name="description" content="Portal corporativo interno — Portal Universidad" />
-
-  {# Inter desde Google Fonts. display=swap: muestra texto de inmediato y
-     cambia a Inter cuando carga, evitando el "flash de texto invisible". #}
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  />
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-
-  {# Bootstrap Icons: librería de íconos SVG sin derechos de autor #}
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
   {% load static %}
-  <!-- Carga de archivos estáticos propios -->
-
-  {# Nuestro CSS centralizado con todas las variables y estilos #}
-  <link rel="stylesheet" href="{% static 'css/portal.css' %}" />
-
-  {# Bloque para CSS adicional específico de cada página #}
+  <link rel="stylesheet" href="{% static 'css/portal.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
 
 <body>
 
-  {# ============================================================
-     NAVBAR
-     Visible en todas las páginas EXCEPTO en el login.
-     La condición verifica si el usuario tiene sesión activa.
-  ============================================================= #}
   {% if user.is_authenticated %}
   <nav class="site-navbar" role="navigation" aria-label="Navegación principal">
-
-    {# Marca del portal #}
     <a href="{% url 'portal:dashboard' %}" class="navbar-brand" aria-label="Ir al inicio">
       <span class="navbar-brand-name">Portal <strong>Universidad</strong></span>
     </a>
 
     <div class="navbar-divider" aria-hidden="true"></div>
 
-    {# Links de navegación — el rol determina qué ve el usuario.
-       Las plantillas de Django pueden acceder al usuario con {{ user }}.
-       user.groups.all actúa como un array de los grupos del usuario. #}
     <ul class="navbar-nav" id="navbar-menu" role="list">
       <li>
         <a href="{% url 'portal:dashboard' %}"
@@ -116,51 +65,34 @@ Bloques disponibles para las páginas hijas:
       </li>
     </ul>
 
-    {# Sección derecha: usuario y logout #}
     <div class="navbar-end">
-      <span class="navbar-user">
-        {# Avatar con iniciales del usuario #}
+      <a href="{% url 'cuentas:perfil' %}" class="navbar-user" style="text-decoration: none;" title="Ver mi perfil">
         <span class="navbar-user-avatar" aria-hidden="true">
           {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
         </span>
-        {# Nombre del usuario — se oculta en móvil con CSS #}
-        <span class="d-none d-md-inline" style="color: rgba(255,255,255,0.65); font-size: var(--text-sm);">
+        <span class="d-none d-md-inline" style="color: rgba(255,255,255,0.85); font-size: var(--text-sm);">
           {{ user.get_full_name|default:user.username }}
         </span>
-      </span>
+      </a>
 
-      {# Logout usa un formulario POST para protección CSRF.
-         Nunca se debe hacer logout con un enlace GET — es una vulnerabilidad. #}
       <form method="post" action="{% url 'cuentas:logout' %}" style="margin: 0;">
         {% csrf_token %}
-        <button type="submit" class="navbar-logout" title="Cerrar sesión"
-                aria-label="Cerrar sesión">
+        <button type="submit" class="navbar-logout" title="Cerrar sesión" aria-label="Cerrar sesión" style="background: none; border: none; cursor: pointer;">
           <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
         </button>
       </form>
     </div>
 
-    {# Botón hamburguesa para móvil #}
-    <button class="navbar-toggle" id="navbar-toggle"
-            aria-controls="navbar-menu"
-            aria-expanded="false"
-            aria-label="Abrir menú">
+    <button class="navbar-toggle" id="navbar-toggle" aria-controls="navbar-menu" aria-expanded="false" aria-label="Abrir menú">
       <i class="bi bi-list" aria-hidden="true"></i>
     </button>
-
   </nav>
   {% endif %}
 
-  {# ============================================================
-     MENSAJES FLASH
-     Django genera mensajes con messages.success(), messages.error(), etc.
-     Este bloque los convierte en notificaciones flotantes.
-  ============================================================= #}
   {% if messages %}
   <div class="flash-messages" role="status" aria-live="polite">
     {% for message in messages %}
     <div class="flash-message {{ message.tags }}" role="alert">
-      {# Ícono según el tipo de mensaje #}
       {% if message.tags == 'success' %}
         <i class="bi bi-check-circle" aria-hidden="true"></i>
       {% elif message.tags == 'error' or message.tags == 'danger' %}
@@ -177,21 +109,11 @@ Bloques disponibles para las páginas hijas:
   </div>
   {% endif %}
 
-  {# ============================================================
-     CONTENIDO PRINCIPAL
-     Cada página hereda este layout y rellena este bloque.
-  ============================================================= #}
   <main {% if user.is_authenticated %}class="app-layout"{% endif %}>
     {% block content %}{% endblock %}
   </main>
 
-  {# ============================================================
-     SCRIPTS
-  ============================================================= #}
   <script src="{% static 'js/portal.js' %}"></script>
-
-  {# Bloque para JavaScript adicional específico de cada página #}
   {% block extra_js %}{% endblock %}
-
 </body>
 </html>

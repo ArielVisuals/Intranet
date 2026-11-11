@@ -34,8 +34,12 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # DEBUG=True muestra errores detallados en pantalla. SIEMPRE False en producción.
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-# Lista de dominios que pueden servir esta app. Vacío en desarrollo con DEBUG=True.
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+# Lista de dominios que pueden servir esta app.
+# En desarrollo (DEBUG=True) permitimos localhost, 127.0.0.1 y testserver.
+ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver")
+ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS_ENV.split(",") if h.strip()]
+if DEBUG and "*" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.extend(["localhost", "127.0.0.1", "testserver"])
 
 
 # =============================================================================
