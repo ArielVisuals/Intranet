@@ -10,8 +10,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 
 urlpatterns = [
+    # Ruta raíz: redirige al login (si no hay sesión) o al dashboard
+    path("", lambda request: redirect("portal:dashboard" if request.user.is_authenticated else "cuentas:login")),
+
     # Panel de administración de Django (accesible en /admin/)
     path("admin/", admin.site.urls),
 

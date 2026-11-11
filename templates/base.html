@@ -47,12 +47,8 @@ Bloques disponibles para las páginas hijas:
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
   />
 
-  {#
-    {% load static %} activa la etiqueta {% static %} que convierte
-    rutas relativas a URLs absolutas correctas.
-    Es equivalente al import de un archivo en React con Webpack/Vite.
-  #}
   {% load static %}
+  <!-- Carga de archivos estáticos propios -->
 
   {# Nuestro CSS centralizado con todas las variables y estilos #}
   <link rel="stylesheet" href="{% static 'css/portal.css' %}" />

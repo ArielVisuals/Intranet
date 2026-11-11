@@ -1,5 +1,9 @@
-"""URLs de la app solicitudes — se completarán en la Fase 3."""
+"""URLs de solicitudes — placeholder hasta Fase 3."""
 from django.urls import path
+from . import views
 
 app_name = "solicitudes"
-urlpatterns = []
+
+urlpatterns = [
+    path("", views.lista_solicitudes, name="lista"),
+]

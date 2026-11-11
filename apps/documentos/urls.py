@@ -1,5 +1,9 @@
-"""URLs de la app documentos — se completarán en la Fase 4."""
+"""URLs de documentos — placeholder hasta Fase 4."""
 from django.urls import path
+from . import views
 
 app_name = "documentos"
-urlpatterns = []
+
+urlpatterns = [
+    path("", views.lista_documentos, name="lista"),
+]

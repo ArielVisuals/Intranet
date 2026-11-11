@@ -1026,6 +1026,21 @@ table.data-table {
   .navbar-nav {
     display: none;  /* El menú se oculta en móvil */
   }
+  /* Cuando JS añade .mobile-open al navbar-nav, se muestra el menú */
+  .navbar-nav.mobile-open {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    right: 0;
+    background-color: var(--color-dark);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: var(--space-1);
+    z-index: 999;
+  }
   .navbar-toggle {
     display: flex;
   }

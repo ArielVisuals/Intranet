@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% comment %}
+dashboard.html — Panel de inicio del Portal Universidad.
+Muestra un resumen del usuario y tarjetas de acceso rápido.
+Se enriquecerá con datos reales en la Fase 5.
+{% endcomment %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="main-content">
+
+  {# Saludo personalizado según hora del día #}
+  <header style="margin-bottom: var(--space-8);">
+    <h1 style="font-size: var(--text-2xl); font-weight: var(--weight-light); margin-bottom: var(--space-2);">
+      Bienvenido, <strong style="font-weight: var(--weight-semibold);">{{ request.user.get_full_name|default:request.user.username }}</strong>
+    </h1>
+    <p class="text-secondary" style="font-size: var(--text-sm);">
+      {% with area=request.user.perfil.area %}
+        {% if area %}Área de {{ area }}{% else %}Portal Universidad{% endif %}
+      {% endwith %}
+      &nbsp;·&nbsp;
+      <span id="fecha-actual"></span>
+    </p>
+  </header>
+
+  {# Accesos rápidos — se rellenarán con datos reales en Fase 5 #}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-5); margin-bottom: var(--space-8);">
+
+    <a href="{% url 'solicitudes:lista' %}" class="metric-card" style="text-decoration: none; color: inherit;">
+      <div class="metric-icon">
+        <i class="bi bi-file-earmark-text"></i>
+      </div>
+      <div class="metric-value">—</div>
+      <div class="metric-label">Solicitudes</div>
+    </a>
+
+    <a href="{% url 'documentos:lista' %}" class="metric-card" style="text-decoration: none; color: inherit;">
+      <div class="metric-icon">
+        <i class="bi bi-folder2-open"></i>
+      </div>
+      <div class="metric-value">—</div>
+      <div class="metric-label">Documentos</div>
+    </a>
+
+    <a href="{% url 'portal:avisos' %}" class="metric-card" style="text-decoration: none; color: inherit;">
+      <div class="metric-icon">
+        <i class="bi bi-megaphone"></i>
+      </div>
+      <div class="metric-value">—</div>
+      <div class="metric-label">Avisos activos</div>
+    </a>
+
+    <a href="{% url 'portal:directorio' %}" class="metric-card" style="text-decoration: none; color: inherit;">
+      <div class="metric-icon">
+        <i class="bi bi-people"></i>
+      </div>
+      <div class="metric-value">—</div>
+      <div class="metric-label">Directorio</div>
+    </a>
+
+  </div>
+
+  {# Estado del sistema: en construcción #}
+  <div class="card">
+    <div class="card-body" style="display: flex; align-items: center; gap: var(--space-4);">
+      <i class="bi bi-tools" style="font-size: 1.5rem; color: var(--color-warning);"></i>
+      <div>
+        <p style="font-weight: var(--weight-medium); margin-bottom: var(--space-1);">
+          Módulos en construcción
+        </p>
+        <p class="text-secondary" style="font-size: var(--text-sm); margin: 0;">
+          Las secciones de Solicitudes, Documentos, Avisos y Directorio
+          se habilitarán en las siguientes fases del proyecto.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {# Acceso rápido al perfil #}
+  <div style="margin-top: var(--space-6); display: flex; gap: var(--space-3);">
+    <a href="{% url 'cuentas:perfil' %}" class="btn btn-outline btn-sm">
+      <i class="bi bi-person"></i>
+      Ver mi perfil
+    </a>
+    {% if request.user.is_staff %}
+    <a href="{% url 'admin:index' %}" class="btn btn-dark btn-sm">
+      <i class="bi bi-gear"></i>
+      Panel de administración
+    </a>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Muestra la fecha actual en español sin librerías externas
+  const el = document.getElementById('fecha-actual');
+  if (el) {
+    const ahora = new Date();
+    el.textContent = ahora.toLocaleDateString('es-MX', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+</script>
+{% endblock %}
