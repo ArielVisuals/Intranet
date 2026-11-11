@@ -235,3 +235,9 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024    # 10 MB en bytes
 # BigAutoField usa enteros de 64 bits para IDs. Es la mejor práctica
 # para sistemas que pueden crecer (evita quedarse sin IDs con AutoField de 32 bits).
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Permite tu dominio de Vercel y localhost
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
+
+# Si tu aplicación usa formularios, login o botones que envíen datos (POST):
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
