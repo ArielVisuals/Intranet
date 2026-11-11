@@ -1,11 +1,140 @@
 {% extends "base.html" %}
+
 {% block title %}Solicitudes{% endblock %}
+
 {% block content %}
 <div class="main-content">
-  <header class="page-title">Solicitudes<span class="page-subtitle">Permisos, vacaciones y soporte de TI</span></header>
-  <div class="empty-state">
-    <i class="bi bi-file-earmark-text"></i>
-    <p>El módulo de solicitudes estará disponible en la Fase 3 del proyecto.</p>
+
+  <div class="d-flex align-center justify-between flex-wrap gap-4 mb-6">
+    <div>
+      <h1 class="page-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+        Solicitudes
+        <span class="page-subtitle">
+          {% if es_jefe_area and vista_actual == 'area' %}
+            Solicitudes del equipo de tu área pendientes de revisión
+          {% else %}
+            Tus solicitudes personales de vacaciones, permisos y soporte técnico
+          {% endif %}
+        </span>
+      </h1>
+    </div>
+
+    <div>
+      <a href="{% url 'solicitudes:crear' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        Nueva solicitud
+      </a>
+    </div>
   </div>
+
+  {% if es_jefe_area %}
+  <div style="display: flex; gap: var(--space-2); margin-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-3);">
+    <a href="?vista=area{% if estado_actual %}&estado={{ estado_actual }}{% endif %}"
+       class="btn {% if vista_actual == 'area' %}btn-dark{% else %}btn-outline{% endif %} btn-sm">
+      <i class="bi bi-people" aria-hidden="true"></i>
+      Solicitudes de mi Área
+    </a>
+    <a href="?vista=mis_solicitudes{% if estado_actual %}&estado={{ estado_actual }}{% endif %}"
+       class="btn {% if vista_actual == 'mis_solicitudes' %}btn-dark{% else %}btn-outline{% endif %} btn-sm">
+      <i class="bi bi-person" aria-hidden="true"></i>
+      Mis solicitudes personales
+    </a>
+  </div>
+  {% endif %}
+
+  <div style="display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap;">
+    <a href="?vista={{ vista_actual }}"
+       class="btn {% if not estado_actual %}btn-dark{% else %}btn-outline{% endif %} btn-sm">
+      Todas
+    </a>
+    {% for codigo, etiqueta in estados %}
+    <a href="?vista={{ vista_actual }}&estado={{ codigo }}"
+       class="btn {% if estado_actual == codigo %}btn-dark{% else %}btn-outline{% endif %} btn-sm">
+      {{ etiqueta }}
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if solicitudes %}
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Folio</th>
+          <th>Tipo</th>
+          <th>Asunto</th>
+          {% if es_jefe_area or es_admin %}
+          <th>Solicitante</th>
+          {% endif %}
+          <th>Período / Fechas</th>
+          <th>Estado</th>
+          <th style="text-align: right;">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in solicitudes %}
+        <tr data-href="{% url 'solicitudes:detalle' s.pk %}">
+          <td style="font-weight: var(--weight-medium); color: var(--color-text-secondary);">
+            #{{ s.id|stringformat:"04d" }}
+          </td>
+          <td>
+            <span style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-secondary); font-weight: 500;">
+              {{ s.get_tipo_display }}
+            </span>
+          </td>
+          <td style="font-weight: var(--weight-medium);">
+            <a href="{% url 'solicitudes:detalle' s.pk %}" style="color: inherit; text-decoration: none;">
+              {{ s.asunto }}
+            </a>
+          </td>
+          {% if es_jefe_area or es_admin %}
+          <td>
+            {{ s.solicitante.get_full_name|default:s.solicitante.username }}
+            <span class="text-muted" style="display: block; font-size: var(--text-xs);">{{ s.area.nombre }}</span>
+          </td>
+          {% endif %}
+          <td class="text-muted" style="font-size: var(--text-xs);">
+            {% if s.fecha_inicio and s.fecha_fin %}
+              {{ s.fecha_inicio|date:"d/m/Y" }} — {{ s.fecha_fin|date:"d/m/Y" }}
+            {% elif s.fecha_inicio %}
+              Desde {{ s.fecha_inicio|date:"d/m/Y" }}
+            {% else %}
+              Creada el {{ s.creado_en|date:"d/m/Y" }}
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge badge-{{ s.estado }}">
+              {{ s.get_estado_display }}
+            </span>
+          </td>
+          <td style="text-align: right;">
+            <a href="{% url 'solicitudes:detalle' s.pk %}" class="btn btn-outline btn-sm">
+              Ver detalle
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <i class="bi bi-inbox" aria-hidden="true"></i>
+      <p style="font-weight: 500; margin-bottom: var(--space-2);">No se encontraron solicitudes</p>
+      <p class="text-muted" style="font-size: var(--text-sm); margin-bottom: var(--space-4);">
+        {% if estado_actual %}
+          No hay solicitudes con el estado seleccionado.
+        {% else %}
+          Aún no has registrado ninguna solicitud.
+        {% endif %}
+      </p>
+      <a href="{% url 'solicitudes:crear' %}" class="btn btn-primary btn-sm">
+        Crear primera solicitud
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

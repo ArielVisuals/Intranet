@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitud #{{ solicitud.id|stringformat:"04d" }} · {{ solicitud.asunto }}{% endblock %}
+
+{% block content %}
+<div class="main-content">
+
+  <div style="margin-bottom: var(--space-6);">
+    <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline btn-sm" style="margin-bottom: var(--space-4);">
+      <i class="bi bi-arrow-left" aria-hidden="true"></i>
+      Volver al listado
+    </a>
+
+    <div class="d-flex align-center justify-between flex-wrap gap-4">
+      <div>
+        <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2);">
+          <span style="font-size: var(--text-xs); color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">
+            Folio #{{ solicitud.id|stringformat:"04d" }} &nbsp;·&nbsp; {{ solicitud.get_tipo_display }}
+          </span>
+          <span class="badge badge-{{ solicitud.estado }}">
+            {{ solicitud.get_estado_display }}
+          </span>
+        </div>
+        <h1 class="page-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+          {{ solicitud.asunto }}
+        </h1>
+      </div>
+
+      {% if puede_cancelar %}
+      <form method="post" action="{% url 'solicitudes:cancelar' solicitud.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline btn-sm"
+                data-confirm="¿Confirmas que deseas cancelar esta solicitud? Esta acción no se puede deshacer.">
+          <i class="bi bi-x-circle" aria-hidden="true"></i>
+          Cancelar solicitud
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--space-6); align-items: start;">
+
+    <!-- Columna izquierda: Información detallada y acciones de jefatura -->
+    <div style="display: flex; flex-direction: column; gap: var(--space-6);">
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size: var(--text-base);">Información de la solicitud</h2>
+        </div>
+        <div class="card-body">
+          <dl style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6);">
+            <div>
+              <dt class="text-muted text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em; margin-bottom: 2px;">Solicitante</dt>
+              <dd style="margin: 0; font-weight: var(--weight-medium);">
+                {{ solicitud.solicitante.get_full_name|default:solicitud.solicitante.username }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-muted text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em; margin-bottom: 2px;">Área</dt>
+              <dd style="margin: 0; font-weight: var(--weight-medium);">
+                {{ solicitud.area.nombre }}
+              </dd>
+            </div>
+            {% if solicitud.fecha_inicio or solicitud.fecha_fin %}
+            <div style="grid-column: 1 / -1;">
+              <dt class="text-muted text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em; margin-bottom: 2px;">Período programado</dt>
+              <dd style="margin: 0; font-weight: var(--weight-medium);">
+                {% if solicitud.fecha_inicio and solicitud.fecha_fin %}
+                  Del {{ solicitud.fecha_inicio|date:"d \d\e F \d\e Y" }} al {{ solicitud.fecha_fin|date:"d \d\e F \d\e Y" }}
+                {% elif solicitud.fecha_inicio %}
+                  A partir del {{ solicitud.fecha_inicio|date:"d \d\e F \d\e Y" }}
+                {% endif %}
+              </dd>
+            </div>
+            {% endif %}
+            <div>
+              <dt class="text-muted text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em; margin-bottom: 2px;">Fecha de envío</dt>
+              <dd style="margin: 0; font-size: var(--text-sm);">
+                {{ solicitud.creado_en|date:"d/m/Y H:i" }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-muted text-uppercase" style="font-size: var(--text-xs); letter-spacing: 0.05em; margin-bottom: 2px;">Última actualización</dt>
+              <dd style="margin: 0; font-size: var(--text-sm);">
+                {{ solicitud.actualizado_en|date:"d/m/Y H:i" }}
+              </dd>
+            </div>
+          </dl>
+
+          <div>
+            <h3 style="font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-secondary); margin-bottom: var(--space-2);">
+              Descripción o justificación
+            </h3>
+            <div style="background-color: var(--color-bg); padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm); border: 1px solid var(--color-border); font-size: var(--text-sm); line-height: 1.6; white-space: pre-line;">
+              {{ solicitud.descripcion }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if puede_gestionar %}
+      <!-- Panel de decisión para el Jefe de Área o Administrador -->
+      <div class="card" style="border-top: 3px solid var(--color-accent);">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size: var(--text-base); color: var(--color-text-primary);">
+            <i class="bi bi-shield-check" aria-hidden="true" style="color: var(--color-accent); margin-right: var(--space-2);"></i>
+            Resolución de Jefatura
+          </h2>
+        </div>
+        <div class="card-body">
+          <p class="text-secondary" style="font-size: var(--text-sm); margin-bottom: var(--space-4);">
+            Como responsable de área, evalúa la solicitud. Puedes aprobarla o rechazarla (en caso de rechazo, el comentario explicativo es obligatorio).
+          </p>
+
+          <form method="post" action="{% url 'solicitudes:gestionar' solicitud.pk %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+              <label for="id_comentario" class="form-label">
+                Comentario o Justificación de la decisión
+              </label>
+              <textarea name="comentario" id="id_comentario" class="form-control" rows="3"
+                        placeholder="Escribe aquí las observaciones o el motivo de la decisión..."></textarea>
+              <span class="form-hint">Obligatorio si decides rechazar.</span>
+            </div>
+
+            <div style="display: flex; gap: var(--space-3); margin-top: var(--space-5);">
+              <button type="submit" name="accion" value="aprobada" class="btn btn-success">
+                <i class="bi bi-check-lg" aria-hidden="true"></i>
+                Aprobar solicitud
+              </button>
+
+              <button type="submit" name="accion" value="rechazada" class="btn btn-danger">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+                Rechazar solicitud
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Columna derecha: Historial de auditoría cronológico -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title" style="font-size: var(--text-base);">
+            <i class="bi bi-clock-history" aria-hidden="true" style="margin-right: var(--space-2); color: var(--color-text-secondary);"></i>
+            Historial de auditoría
+          </h2>
+        </div>
+        <div class="card-body" style="padding: var(--space-5);">
+
+          <div class="timeline">
+            {% for h in historial %}
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); margin-bottom: 2px;">
+                  <strong style="font-size: var(--text-sm);">
+                    {{ h.usuario.get_full_name|default:h.usuario.username }}
+                  </strong>
+                  <span class="text-muted" style="font-size: var(--text-xs); white-space: nowrap;">
+                    {{ h.fecha|date:"d/m/Y H:i" }}
+                  </span>
+                </div>
+
+                <div style="margin-bottom: var(--space-2);">
+                  <span class="badge badge-{{ h.estado_nuevo }}">
+                    {{ h.get_estado_nuevo_display }}
+                  </span>
+                </div>
+
+                {% if h.comentario %}
+                <p style="font-size: var(--text-xs); color: var(--color-text-secondary); margin: 0; background-color: var(--color-bg); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); border-left: 2px solid var(--color-border-strong);">
+                  {{ h.comentario }}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Línea de tiempo vertical para el historial */
+  .timeline {
+    position: relative;
+    padding-left: var(--space-6);
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 7px;
+    width: 2px;
+    background-color: var(--color-border);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: var(--space-6);
+  }
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+  .timeline-marker {
+    position: absolute;
+    left: -24px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--color-surface);
+    border: 2px solid var(--color-accent);
+  }
+  .timeline-content {
+    background: transparent;
+  }
+
+  @media (max-width: 900px) {
+    .main-content > div[style*="grid-template-columns"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+{% endblock %}
