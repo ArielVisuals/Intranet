@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Subir documento{% endblock %}
+
+{% block content %}
+<div class="main-content" style="max-width: 800px;">
+
+  <div style="margin-bottom: var(--space-6);">
+    <a href="{% url 'documentos:lista' %}" class="btn btn-outline btn-sm" style="margin-bottom: var(--space-4);">
+      <i class="bi bi-arrow-left" aria-hidden="true"></i>
+      Volver al repositorio
+    </a>
+    <h1 class="page-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+      Subir Documento Corporativo
+      <span class="page-subtitle">
+        Comparte formatos, normativas o manuales con tu equipo o con toda la organización
+      </span>
+    </h1>
+  </div>
+
+  <div class="card" style="margin-bottom: var(--space-6); background-color: #FAFAFA;">
+    <div class="card-body" style="padding: var(--space-4) var(--space-6);">
+      <div style="display: flex; gap: var(--space-3); align-items: flex-start;">
+        <i class="bi bi-info-circle" style="color: var(--color-accent); font-size: 1.25rem; margin-top: 2px;" aria-hidden="true"></i>
+        <div style="font-size: var(--text-xs); color: var(--color-text-secondary); line-height: 1.5;">
+          <strong>Lineamientos de carga:</strong> Formatos admitidos: PDF, Word (.docx), Excel (.xlsx, .csv), PowerPoint (.pptx) e imágenes. Tamaño máximo permitido por archivo: <strong>10 MB</strong>.
+          {% if area_usuario %}
+            Si seleccionas visibilidad <em>"Solo para mi área"</em>, el documento quedará restringido a miembros del área <strong>{{ area_usuario.nombre }}</strong>.
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="{{ form.titulo.id_for_label }}" class="form-label">
+            {{ form.titulo.label }}
+          </label>
+          {{ form.titulo }}
+          {% if form.titulo.errors %}
+            {% for error in form.titulo.errors %}
+              <span class="form-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ error }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5);">
+          <div class="form-group">
+            <label for="{{ form.categoria.id_for_label }}" class="form-label">
+              {{ form.categoria.label }}
+            </label>
+            {{ form.categoria }}
+            {% if form.categoria.errors %}
+              {% for error in form.categoria.errors %}
+                <span class="form-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ error }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.visibilidad.id_for_label }}" class="form-label">
+              {{ form.visibilidad.label }}
+            </label>
+            {{ form.visibilidad }}
+            {% if form.visibilidad.errors %}
+              {% for error in form.visibilidad.errors %}
+                <span class="form-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ error }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.archivo.id_for_label }}" class="form-label">
+            {{ form.archivo.label }}
+          </label>
+          {{ form.archivo }}
+          {% if form.archivo.errors %}
+            {% for error in form.archivo.errors %}
+              <span class="form-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ error }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="form-hint">Formatos PDF, Office o imágenes hasta 10 MB.</span>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+            {{ form.descripcion.label }}
+          </label>
+          {{ form.descripcion }}
+          {% if form.descripcion.errors %}
+            {% for error in form.descripcion.errors %}
+              <span class="form-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ error }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div style="display: flex; gap: var(--space-3); margin-top: var(--space-6); border-top: 1px solid var(--color-border); padding-top: var(--space-5);">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+            Publicar documento
+          </button>
+          <a href="{% url 'documentos:lista' %}" class="btn btn-outline">
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

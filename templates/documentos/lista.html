@@ -1,11 +1,162 @@
 {% extends "base.html" %}
+
 {% block title %}Documentos{% endblock %}
+
 {% block content %}
 <div class="main-content">
-  <header class="page-title">Documentos<span class="page-subtitle">Políticas, formatos y manuales corporativos</span></header>
-  <div class="empty-state">
-    <i class="bi bi-folder2-open"></i>
-    <p>El módulo de documentos estará disponible en la Fase 4 del proyecto.</p>
+
+  <div class="d-flex align-center justify-between flex-wrap gap-4 mb-6">
+    <div>
+      <h1 class="page-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+        Repositorio de Documentos
+        <span class="page-subtitle">
+          Consulta y descarga políticas internas, formatos oficiales y manuales operativos
+        </span>
+      </h1>
+    </div>
+
+    <div>
+      <a href="{% url 'documentos:subir' %}" class="btn btn-primary">
+        <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+        Subir documento
+      </a>
+    </div>
   </div>
+
+  <div class="card" style="margin-bottom: var(--space-6);">
+    <div class="card-body" style="padding: var(--space-5);">
+      <form method="get" action="{% url 'documentos:lista' %}" style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+        {% if categoria_actual %}
+          <input type="hidden" name="categoria" value="{{ categoria_actual }}">
+        {% endif %}
+
+        <div style="flex: 1; min-width: 260px;">
+          <input type="text" name="q" value="{{ termino_busqueda }}"
+                 class="form-control"
+                 placeholder="Buscar por título, contenido o palabra clave..."
+                 aria-label="Buscar documentos">
+        </div>
+
+        <button type="submit" class="btn btn-dark">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          Buscar
+        </button>
+
+        {% if termino_busqueda or categoria_actual %}
+        <a href="{% url 'documentos:lista' %}" class="btn btn-outline" title="Limpiar filtros">
+          <i class="bi bi-x-circle" aria-hidden="true"></i>
+          Limpiar
+        </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: var(--space-2); margin-bottom: var(--space-6); flex-wrap: wrap;">
+    <a href="?{% if termino_busqueda %}q={{ termino_busqueda }}{% endif %}"
+       class="btn {% if not categoria_actual %}btn-dark{% else %}btn-outline{% endif %} btn-sm">
+      Todas las categorías
+    </a>
+    {% for codigo, nombre in categorias %}
+    <a href="?categoria={{ codigo }}{% if termino_busqueda %}&q={{ termino_busqueda }}{% endif %}"
+       class="btn {% if categoria_actual == codigo %}btn-dark{% else %}btn-outline{% endif %} btn-sm">
+      {{ nombre }}
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if documentos %}
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 44px;">Tipo</th>
+          <th>Documento / Descripción</th>
+          <th>Categoría</th>
+          <th>Ámbito</th>
+          <th>Tamaño</th>
+          <th>Fecha</th>
+          <th style="text-align: right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc in documentos %}
+        <tr>
+          <td style="text-align: center; font-size: 1.5rem;">
+            <i class="bi {{ doc.icono_bootstrap }}" aria-hidden="true"></i>
+          </td>
+          <td>
+            <a href="{% url 'documentos:descargar' doc.pk %}"
+               style="font-weight: var(--weight-medium); color: var(--color-text-primary); text-decoration: none;">
+              {{ doc.titulo }}
+            </a>
+            {% if doc.descripcion %}
+              <p class="text-secondary" style="font-size: var(--text-xs); margin: var(--space-1) 0 0; line-height: 1.4;">
+                {{ doc.descripcion|truncatewords:20 }}
+              </p>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge badge-info">
+              {{ doc.get_categoria_display }}
+            </span>
+          </td>
+          <td>
+            {% if doc.visibilidad == 'toda_empresa' %}
+              <span class="badge badge-aprobada" title="Acceso para todos los colaboradores">
+                Toda la empresa
+              </span>
+            {% else %}
+              <span class="badge badge-pendiente" title="Exclusivo para el área asignada">
+                {{ doc.area.nombre|default:"Área restringida" }}
+              </span>
+            {% endif %}
+          </td>
+          <td class="text-muted" style="font-size: var(--text-xs); white-space: nowrap;">
+            {{ doc.tamanio_legible }}
+          </td>
+          <td class="text-muted" style="font-size: var(--text-xs); white-space: nowrap;">
+            {{ doc.subido_en|date:"d/m/Y" }}
+          </td>
+          <td style="text-align: right; white-space: nowrap;">
+            <a href="{% url 'documentos:descargar' doc.pk %}" class="btn btn-outline btn-sm" title="Descargar archivo">
+              <i class="bi bi-download" aria-hidden="true"></i>
+              Descargar
+            </a>
+
+            {% if user.is_superuser or user.groups.all.0.name == 'Administrador' or doc.subido_por == user %}
+            <form method="post" action="{% url 'documentos:eliminar' doc.pk %}" style="display: inline-block; margin-left: var(--space-1);">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline btn-sm text-danger" title="Eliminar documento"
+                      data-confirm="¿Confirmas que deseas eliminar este documento de forma definitiva?">
+                <i class="bi bi-trash" aria-hidden="true"></i>
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <i class="bi bi-folder2-open" aria-hidden="true"></i>
+      <p style="font-weight: 500; margin-bottom: var(--space-2);">No se encontraron documentos</p>
+      <p class="text-muted" style="font-size: var(--text-sm); margin-bottom: var(--space-4);">
+        {% if termino_busqueda or categoria_actual %}
+          No hay documentos que coincidan con los criterios de búsqueda seleccionados.
+        {% else %}
+          Aún no hay documentos registrados en el repositorio corporativo.
+        {% endif %}
+      </p>
+      <a href="{% url 'documentos:subir' %}" class="btn btn-primary btn-sm">
+        Publicar primer documento
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}
