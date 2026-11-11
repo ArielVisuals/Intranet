@@ -1,0 +1,37 @@
+# Archivos que Git debe IGNORAR.
+# Equivale al .gitignore de cualquier proyecto Node.js,
+# pero adaptado para Python/Django.
+
+# --- Entorno virtual ---
+venv/
+.venv/
+env/
+
+# --- Variables de entorno (¡NUNCA subir secretos!) ---
+.env
+
+# --- Base de datos SQLite de desarrollo ---
+*.sqlite3
+db.sqlite3
+
+# --- Archivos subidos por usuarios ---
+media/
+
+# --- Archivos compilados de Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# --- Archivos estáticos recolectados para producción ---
+staticfiles/
+
+# --- Configuración de editores ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# --- Logs ---
+*.log
