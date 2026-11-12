@@ -50,16 +50,14 @@ if DEBUG and "*" not in ALLOWED_HOSTS:
 
 INSTALLED_APPS = [
     # Apps de Django (el núcleo del framework)
-    
     "django.contrib.admin",        # Panel de administración automático
     'cloudinary_storage',
-    'django.contrib.staticfiles',
     'cloudinary',
     "django.contrib.auth",         # Sistema de autenticación (usuarios, contraseñas, grupos)
     "django.contrib.contenttypes", # Permite relaciones genéricas entre modelos
     "django.contrib.sessions",     # Manejo de sesiones de usuario
     "django.contrib.messages",     # Sistema de mensajes flash (éxito, error, etc.)
-    "django.contrib.staticfiles",  # Sirve archivos CSS/JS/imágenes
+    "django.contrib.staticfiles",  # Sirve archivos CSS/JS/imágenes (única aparición)
 
     # Apps de terceros
     "whitenoise",  # Sirve archivos estáticos en producción sin Nginx
