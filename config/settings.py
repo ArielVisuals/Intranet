@@ -50,14 +50,16 @@ if DEBUG and "*" not in ALLOWED_HOSTS:
 
 INSTALLED_APPS = [
     # Apps de Django (el núcleo del framework)
+    
     "django.contrib.admin",        # Panel de administración automático
     'cloudinary_storage',
+    'django.contrib.staticfiles',
     'cloudinary',
     "django.contrib.auth",         # Sistema de autenticación (usuarios, contraseñas, grupos)
     "django.contrib.contenttypes", # Permite relaciones genéricas entre modelos
     "django.contrib.sessions",     # Manejo de sesiones de usuario
     "django.contrib.messages",     # Sistema de mensajes flash (éxito, error, etc.)
-    "django.contrib.staticfiles",  # Sirve archivos CSS/JS/imágenes (única aparición)
+    "django.contrib.staticfiles",  # Sirve archivos CSS/JS/imágenes
 
     # Apps de terceros
     "whitenoise",  # Sirve archivos estáticos en producción sin Nginx
@@ -194,8 +196,9 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # Carpeta donde "collectstatic" junta todos los estáticos para producción
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# WhiteNoise: Usa compresión simple sin exigir manifiesto estricto
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# WhiteNoise: comprime y cachea los estáticos en producción
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 # =============================================================================
 # ARCHIVOS DE MEDIOS (subidos por usuarios)
