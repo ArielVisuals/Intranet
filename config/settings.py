@@ -194,9 +194,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # Carpeta donde "collectstatic" junta todos los estáticos para producción
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# WhiteNoise: comprime y cachea los estáticos en producción
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
+# WhiteNoise: Usa compresión simple sin exigir manifiesto estricto
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # =============================================================================
 # ARCHIVOS DE MEDIOS (subidos por usuarios)
