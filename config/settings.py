@@ -51,22 +51,19 @@ if DEBUG and "*" not in ALLOWED_HOSTS:
 INSTALLED_APPS = [
     # Apps de Django (el núcleo del framework)
     "django.contrib.admin",        # Panel de administración automático
-    'cloudinary_storage',          # Necesita a staticfiles para funcionar
-    'cloudinary',
-    "django.contrib.auth",         # Sistema de autenticación
-    "django.contrib.contenttypes", # Relaciones genéricas
-    "django.contrib.sessions",     # Manejo de sesiones
-    "django.contrib.messages",     # Mensajes flash
-    "django.contrib.staticfiles",  # <--- OBLIGATORIO para que Cloudinary y collectstatic no fallen
-
-    # Apps de terceros
-    "whitenoise",  # Sirve archivos estáticos en producción
+    "cloudinary_storage",          # Gestiona estáticos y multimedia en Cloudinary
+    "cloudinary",
+    "django.contrib.auth",         # Sistema de autenticación (usuarios, contraseñas, grupos)
+    "django.contrib.contenttypes", # Permite relaciones genéricas entre modelos
+    "django.contrib.sessions",     # Manejo de sesiones de usuario
+    "django.contrib.messages",     # Sistema de mensajes flash (éxito, error, etc.)
+    "django.contrib.staticfiles",  # Obligatorio para que collectstatic funcione
 
     # Nuestras apps (en la carpeta apps/)
-    "apps.cuentas",      
-    "apps.solicitudes",  
-    "apps.documentos",   
-    "apps.portal",       
+    "apps.cuentas",      # Autenticación, perfiles y áreas
+    "apps.solicitudes",  # Flujo de solicitudes (permisos, vacaciones, soporte)
+    "apps.documentos",   # Gestión de documentos corporativos
+    "apps.portal",       # Dashboard, avisos y directorio
 ]
 
 
@@ -78,8 +75,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    # WhiteNoise debe ir justo después de SecurityMiddleware para servir estáticos
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     # CsrfViewMiddleware agrega protección CSRF automáticamente en todos los formularios.
@@ -183,29 +178,35 @@ USE_TZ = True                 # Almacena fechas en UTC, convierte a zona local a
 
 
 # =============================================================================
-# ARCHIVOS ESTÁTICOS (CSS, JS, imágenes del proyecto)
+# ARCHIVOS ESTÁTICOS Y MULTIMEDIA (Cloudinary Storage)
 # =============================================================================
-# "Estáticos" = archivos que no cambian según el usuario (tu CSS, JS, logos).
-# Equivale a la carpeta public/ de un proyecto React.
 
 STATIC_URL = "/static/"
-# Carpeta donde Django busca archivos estáticos del PROYECTO (no de las apps)
 STATICFILES_DIRS = [BASE_DIR / "static"]
-# Carpeta donde "collectstatic" junta todos los estáticos para producción
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# WhiteNoise: comprime y cachea los estáticos en producción
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-
-# =============================================================================
-# ARCHIVOS DE MEDIOS (subidos por usuarios)
-# =============================================================================
-# "Media" = archivos que suben los usuarios (documentos, fotos de perfil, etc.)
-# Equivale al almacenamiento de archivos en servicios como S3 o Firebase Storage.
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", "zb3z89jb"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY", "895941774972863"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", "oNxe1seE1ujzXlXZcneFGWaswCE"),
+}
+
+# Configuración moderna para Django 5.2+ (reemplaza DEFAULT_FILE_STORAGE y STATICFILES_STORAGE)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "cloudinary_storage.storage.StaticCloudinaryStorage",
+    },
+}
+
+# Compatibilidad con paquetes que aún consultan las variables clásicas
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+STATICFILES_STORAGE = "cloudinary_storage.storage.StaticCloudinaryStorage"
 
 
 # =============================================================================
@@ -247,22 +248,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # =============================================================================
 
 # Orígenes confiables para peticiones POST y protección CSRF
-CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
+CSRF_TRUSTED_ORIGINS = ["https://*.vercel.app"]
 
 # Confía en el proxy seguro de Vercel para las cookies de sesión y CSRF
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Asegurar que las cookies de sesión viajen solo por HTTPS en producción
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-
-import os
-
-# Configuración de archivos multimedia con Cloudinary
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'zb3z89jb'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '895941774972863'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'oNxe1seE1ujzXlXZcneFGWaswCE'),
-}
