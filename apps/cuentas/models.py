@@ -130,28 +130,3 @@ class PerfilUsuario(models.Model):
         """Retorna True si el usuario es Administrador o superusuario."""
         return self.usuario.is_superuser or self.usuario.groups.filter(name="Administrador").exists()
 
-
-# =============================================================================
-# SEÑALES (SIGNALS)
-# =============================================================================
-# Una señal es exactamente como un event listener en JavaScript.
-# post_save se dispara DESPUÉS de que se guarda un objeto en la base de datos.
-# Aquí, cuando Django guarda un nuevo User (created=True), automáticamente
-# creamos su PerfilUsuario. El desarrollador no tiene que acordarse de hacerlo.
-
-# =============================================================================
-# SEÑALES (SIGNALS)
-# =============================================================================
-
-@receiver(post_save, sender=User)
-def gestionar_perfil_usuario(sender, instance, created, **kwargs):
-    """
-    Crea el PerfilUsuario si el usuario es nuevo, y se asegura 
-    de guardarlo si ya existe, evitando duplicidades.
-    """
-    if created:
-        PerfilUsuario.objects.get_or_create(usuario=instance)
-    else:
-        # Si el usuario se actualiza, guardamos su perfil asociado si ya fue creado
-        if hasattr(instance, 'perfil'):
-            instance.perfil.save()
