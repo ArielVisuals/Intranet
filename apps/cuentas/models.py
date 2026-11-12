@@ -139,21 +139,19 @@ class PerfilUsuario(models.Model):
 # Aquí, cuando Django guarda un nuevo User (created=True), automáticamente
 # creamos su PerfilUsuario. El desarrollador no tiene que acordarse de hacerlo.
 
+# =============================================================================
+# SEÑALES (SIGNALS)
+# =============================================================================
+
 @receiver(post_save, sender=User)
-def crear_perfil_al_crear_usuario(sender, instance, created, **kwargs):
+def gestionar_perfil_usuario(sender, instance, created, **kwargs):
     """
-    Se ejecuta automáticamente cuando se crea un nuevo User.
-    'created' es True solo la primera vez (INSERT), False en actualizaciones (UPDATE).
+    Crea el PerfilUsuario si el usuario es nuevo, y se asegura 
+    de guardarlo si ya existe, evitando duplicidades.
     """
     if created:
         PerfilUsuario.objects.get_or_create(usuario=instance)
-
-
-@receiver(post_save, sender=User)
-def guardar_perfil_al_guardar_usuario(sender, instance, **kwargs):
-    """
-    Garantiza que el perfil se guarda cada vez que se guarda el usuario.
-    Usa hasattr para evitar errores si el perfil aún no existe.
-    """
-    if hasattr(instance, "perfil"):
-        instance.perfil.save()
+    else:
+        # Si el usuario se actualiza, guardamos su perfil asociado si ya fue creado
+        if hasattr(instance, 'perfil'):
+            instance.perfil.save()
