@@ -50,7 +50,11 @@ if DEBUG and "*" not in ALLOWED_HOSTS:
 
 INSTALLED_APPS = [
     # Apps de Django (el núcleo del framework)
+    
     "django.contrib.admin",        # Panel de administración automático
+    'cloudinary_storage',
+    'django.contrib.staticfiles',
+    'cloudinary',
     "django.contrib.auth",         # Sistema de autenticación (usuarios, contraseñas, grupos)
     "django.contrib.contenttypes", # Permite relaciones genéricas entre modelos
     "django.contrib.sessions",     # Manejo de sesiones de usuario
@@ -253,3 +257,14 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Asegurar que las cookies de sesión viajen solo por HTTPS en producción
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+import os
+
+# Configuración de archivos multimedia con Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'zb3z89jb'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '895941774972863'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'oNxe1seE1ujzXlXZcneFGWaswCE'),
+}
