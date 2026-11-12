@@ -50,25 +50,23 @@ if DEBUG and "*" not in ALLOWED_HOSTS:
 
 INSTALLED_APPS = [
     # Apps de Django (el núcleo del framework)
-    
     "django.contrib.admin",        # Panel de administración automático
-    'cloudinary_storage',
-    'django.contrib.staticfiles',
+    'cloudinary_storage',          # Administra estáticos y media con Cloudinary
     'cloudinary',
-    "django.contrib.auth",         # Sistema de autenticación (usuarios, contraseñas, grupos)
-    "django.contrib.contenttypes", # Permite relaciones genéricas entre modelos
-    "django.contrib.sessions",     # Manejo de sesiones de usuario
-    "django.contrib.messages",     # Sistema de mensajes flash (éxito, error, etc.)
-    "django.contrib.staticfiles",  # Sirve archivos CSS/JS/imágenes
+    "django.contrib.auth",         # Sistema de autenticación
+    "django.contrib.contenttypes", # Relaciones genéricas
+    "django.contrib.sessions",     # Manejo de sesiones
+    "django.contrib.messages",     # Mensajes flash
+    # NOTA: Eliminamos "django.contrib.staticfiles" de aquí para evitar el conflicto de etiquetas duplicadas con Cloudinary
 
     # Apps de terceros
-    "whitenoise",  # Sirve archivos estáticos en producción sin Nginx
+    "whitenoise",  # Sirve archivos estáticos en producción
 
     # Nuestras apps (en la carpeta apps/)
-    "apps.cuentas",      # Autenticación, perfiles y áreas
-    "apps.solicitudes",  # Flujo de solicitudes (permisos, vacaciones, soporte)
-    "apps.documentos",   # Gestión de documentos corporativos
-    "apps.portal",       # Dashboard, avisos y directorio
+    "apps.cuentas",      
+    "apps.solicitudes",  
+    "apps.documentos",   
+    "apps.portal",       
 ]
 
 
