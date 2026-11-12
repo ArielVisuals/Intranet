@@ -35,8 +35,8 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 # Lista de dominios que pueden servir esta app.
-# En desarrollo (DEBUG=True) permitimos localhost, 127.0.0.1 y testserver.
-ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver")
+# Incluye por defecto los dominios de Vercel, localhost y entorno de pruebas.
+ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS", ".vercel.app,localhost,127.0.0.1,testserver")
 ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS_ENV.split(",") if h.strip()]
 if DEBUG and "*" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.extend(["localhost", "127.0.0.1", "testserver"])
@@ -141,7 +141,7 @@ if DB_ENGINE == "django.db.backends.sqlite3":
     }
 else:
     # Configuración para PostgreSQL o MySQL en producción.
-    # Solo se activa si DB_ENGINE está definido en .env
+    # Incluye OPTIONS con sslmode requerido para bases de datos externas como Render.
     DATABASES = {
         "default": {
             "ENGINE": DB_ENGINE,
@@ -150,6 +150,9 @@ else:
             "PASSWORD": os.environ.get("DB_PASSWORD", ""),
             "HOST": os.environ.get("DB_HOST", "localhost"),
             "PORT": os.environ.get("DB_PORT", "5432"),
+            "OPTIONS": {
+                "sslmode": "require",
+            },
         }
     }
 
@@ -236,10 +239,12 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024    # 10 MB en bytes
 # para sistemas que pueden crecer (evita quedarse sin IDs con AutoField de 32 bits).
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Permite tu dominio de Vercel y localhost
-ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 
-# Si tu aplicación usa formularios, login o botones que envíen datos (POST):
+# =============================================================================
+# CONFIGURACIÓN DE SEGURIDAD PARA PRODUCCIÓN (VERCEL / HTTPS)
+# =============================================================================
+
+# Orígenes confiables para peticiones POST y protección CSRF
 CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
 
 # Confía en el proxy seguro de Vercel para las cookies de sesión y CSRF
@@ -247,4 +252,4 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Asegurar que las cookies de sesión viajen solo por HTTPS en producción
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True   
+CSRF_COOKIE_SECURE = True
