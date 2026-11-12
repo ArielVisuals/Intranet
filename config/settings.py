@@ -51,13 +51,13 @@ if DEBUG and "*" not in ALLOWED_HOSTS:
 INSTALLED_APPS = [
     # Apps de Django (el núcleo del framework)
     "django.contrib.admin",        # Panel de administración automático
-    'cloudinary_storage',          # Administra estáticos y media con Cloudinary
+    'cloudinary_storage',          # Necesita a staticfiles para funcionar
     'cloudinary',
     "django.contrib.auth",         # Sistema de autenticación
     "django.contrib.contenttypes", # Relaciones genéricas
     "django.contrib.sessions",     # Manejo de sesiones
     "django.contrib.messages",     # Mensajes flash
-    # NOTA: Eliminamos "django.contrib.staticfiles" de aquí para evitar el conflicto de etiquetas duplicadas con Cloudinary
+    "django.contrib.staticfiles",  # <--- OBLIGATORIO para que Cloudinary y collectstatic no fallen
 
     # Apps de terceros
     "whitenoise",  # Sirve archivos estáticos en producción
