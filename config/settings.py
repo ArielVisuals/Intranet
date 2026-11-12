@@ -241,3 +241,10 @@ ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 
 # Si tu aplicación usa formularios, login o botones que envíen datos (POST):
 CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
+
+# Confía en el proxy seguro de Vercel para las cookies de sesión y CSRF
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Asegurar que las cookies de sesión viajen solo por HTTPS en producción
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
