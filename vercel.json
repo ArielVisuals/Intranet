@@ -1,0 +1,10 @@
+{
+    "buildCommand": "python manage.py collectstatic --noinput",
+    "outputDirectory": ".",
+    "framework": null,
+    "functions": {
+      "config/wsgi.py": {
+        "maxDuration": 30
+      }
+    }
+  }
