@@ -1,5 +1,6 @@
 [tool.vercel]
 entrypoint = "config.wsgi:application"
+build-command = "python manage.py collectstatic --noinput"
 
 [project]
 name = "intranet"
